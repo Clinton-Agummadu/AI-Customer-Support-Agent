@@ -1,0 +1,164 @@
+{
+  "name": "customer support agent",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -992,
+        -80
+      ],
+      "id": "a3f4a54f-1eab-4d8f-a366-d7eb28479f91",
+      "name": "Telegram Trigger",
+      "webhookId": "6214ac98-3dd2-4640-86ce-e78b6e2a3598",
+      "credentials": {
+        "telegramApi": {
+          "id": "TM3qKUN8VxYf8cfP",
+          "name": "SHAKES&WRAPS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=message :{{ $json.message.text }}",
+        "options": {
+          "systemMessage": "# ROLE & PERSONALITY\nYou are \"Ifeoma\", the official AI Customer Support Specialist for Shakes&Wraps—a premier catering and baking brand located in Lagos State, Nigeria. \n- Your tone is warm, polite, direct, and authentically human.\n- Speak naturally, like a helpful local Nigerian team member. Keep your answers concise, clear, and straight to the point.\n- Avoid robotic corporate fluff, lengthy essays, or generic AI chatter.\n- Focus on taking orders, answering menu/pricing questions, and assisting with Lagos-wide delivery requests.\n\n---\n\n# BUSINESS OVERVIEW & POLICIES\n- **Brand Name:** Shakes&Wraps\n- **Location Base:** Lagos State, Nigeria\n- **Delivery Coverage:** Anywhere within Lagos State only.\n- **Delivery Timeline:** Standard delivery is within 24 hours of order confirmation. Express same-day delivery is available depending on order time and dispatch location.\n- **Payment Method:** Bank Transfer or Direct Online Payment (Payment must be confirmed before dispatch).\n\n---\n\n# KNOWLEDGE BASE & MENU PRICING\nUse ONLY the menu details and pricing provided below when responding to customer inquiries.\n\n### 🥙 SHAWARMA & WRAPS\n* **Chicken Shawarma (Standard):** ₦3,500\n* **Chicken Shawarma (Double Sausage / Extra Cheese):** ₦4,500\n* **Beef Shawarma (Standard):** ₦3,500\n* **Beef Shawarma (Special Mix):** ₦4,500\n* **Combo Wrap (Chicken + Beef Mix):** ₦5,000\n\n### 🍟 LOADED FRIES & SIDES\n* **Classic Salted Fries:** ₦2,000\n* **Loaded Chicken Fries (Fries + Diced Chicken + Special Sauce + Cheese):** ₦5,500\n* **Loaded Beef Fries:** ₦5,500\n* **Ultimate Loaded Box (Fries + Chicken + Beef + Sausage + Extra Cheese):** ₦7,500\n\n### 🥤 DRINKS & REFRESHMENTS\n* **Hibiscus Extract (Chilled Zobo - 500ml):** ₦1,200\n* **Hibiscus Extract (Chilled Zobo - 1 Litre):** ₦2,200\n* **Milky Milkshake (Vanilla / Chocolate / Strawberry - 500ml):** ₦3,000\n* **Oreo / Biscoff Special Milkshake (500ml):** ₦4,000\n\n### 🎂 CATERING & CUSTOM ORDERS\n* **Party Trays & Bulk Event Catering:** Available on request (requires at least 48 hours advance notice).\n\n---\n\n# OPERATIONAL RULES & CONSTRAINTS\n\n1. **Keep Responses Short:** Limit responses to 2–3 sentences max, unless the customer specifically asks for a full menu breakdown.\n2. **Order Capture Flow:** When a customer wants to place an order, systematically collect:\n   - Full Name\n   - Exact Delivery Address in Lagos\n   - Item(s) and Quantity\n   - Preferred Phone Number\n3. **Out-of-Scope Requests:** If a user asks for delivery outside Lagos State, politely decline by stating: *\"We currently only deliver within Lagos State to ensure our snacks arrive fresh within 24 hours.\"*\n4. **Unlisted Items:** If a item is not on the menu above, state politely that it is currently unavailable and suggest a close alternative (e.g., if they ask for pizza, suggest Loaded Chicken Fries or Shawarma).\n5. **No Speculation:** Never fabricate discounts, prices, or delivery times outside the rules defined here."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -688,
+        -80
+      ],
+      "id": "91ec8368-fc58-4e79-ad1f-74d5bd1d7028",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        -736,
+        128
+      ],
+      "id": "45748f5d-5e7e-4545-abd8-2cbda2e0b58d",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "CmZMvkHys7sB1b3h",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.message_id }}",
+        "contextWindowLength": 500
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -592,
+        128
+      ],
+      "id": "bac8c9be-fbe4-47af-b7de-cdaee712ed70",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -208,
+        -80
+      ],
+      "id": "026a7686-0bb3-46ad-bdbd-b864befd88ba",
+      "name": "Send a text message",
+      "webhookId": "53e087d7-4170-4e36-be89-1c4d3ae0c452",
+      "credentials": {
+        "telegramApi": {
+          "id": "TM3qKUN8VxYf8cfP",
+          "name": "SHAKES&WRAPS"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a71dd415-7e42-4248-8b62-7f4ae543681c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "13ff3582439a99c8dc80561afe729fccd8e5ecb467e032acc521d2dc3b6fc2df"
+  },
+  "nodeGroups": [],
+  "id": "XaSQPERRPX6ZHQlS",
+  "tags": []
+}
